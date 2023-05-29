@@ -3,7 +3,10 @@ from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
 from .serializers import UserSerializer
 from .models import APIAccess
+import uuid
 
+test_api_uuid = 'test_api_' + str(uuid.uuid4())
+production_api_uuid = 'live_api_' + str(uuid.uuid4())
 
 @api_view(['GET', 'POST'])
 def users_list(request):
@@ -26,7 +29,9 @@ def users_list(request):
                 )
                 user.save()
                 api_access = APIAccess(
-                    user = user
+                    user = user,
+                    test_api = test_api_uuid,
+                    production_api = production_api_uuid,
                 )
                 api_access.save()
                 user = User.objects.filter(pk = user.pk)

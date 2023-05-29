@@ -191,7 +191,7 @@ def user_api_permission(request):
                 try:
                     user_api_permission_name = UserApiPermissionName.objects.get(pk = permission_id, user = user.user)
                 except:
-                    return Response({'message':'Permission not exist'})
+                    return Response({'message':'Permission does not exist'})
                 
                 try:
                     user_api = UserApi.objects.get(pk = user_id)
@@ -271,6 +271,62 @@ def delete_user_permission(request):
 
         UserApiPermission.objects.filter(pk = data, customre = user.user).delete()
         return Response({'message':'User permission deleted'})
+    
+
+
+@api_view(['PUT'])
+def edit_user_permission(request, user_permisson_id):
+    if request.method == 'PUT':
+        api_header = request.META.get('HTTP_API_KEY', None)
+        if not api_header:
+            return Response({'message':'api header is missing!'})
+        
+        try:
+            user = APIAccess.objects.get(production_api = api_header)
+        except:
+            return Response({'message':'api header is incorrect!'})
+        
+        try:
+            update_user_permission = UserApiPermission.objects.get(pk = user_permisson_id, customre = user.user)
+        except:
+            return Response({'message':'Permission is not exist!'})
+        
+        data = request.data
+
+        if data['read_permission']:
+            read_permission = True
+        else:
+            read_permission = False
+
+
+
+        if data['write_permission']:
+            write_permission = True
+        else:
+            write_permission = False
+
+
+
+        if data['edit_permission']:
+            edit_permission = True
+        else:
+            edit_permission = False
+
+
+
+        if data['delete_permission']:
+            delete_permission = True
+        else:
+            delete_permission = False
+
+        update_user_permission.read = read_permission
+        update_user_permission.write = write_permission
+        update_user_permission.edit = edit_permission
+        update_user_permission.delete = delete_permission
+        update_user_permission.save()
+
+        
+        return Response({'message':'User permission updated'})
 
         
 
