@@ -33,6 +33,7 @@ class UserApiPermissionName(models.Model):
 class UserApiPermission(models.Model):
     user_api_permission_name = models.ForeignKey(UserApiPermissionName, on_delete=models.CASCADE, related_name='user_api_permission_name')
     user_api = models.ForeignKey(UserApi, on_delete=models.CASCADE, related_name='user_api')
+    customre = models.ForeignKey(User, on_delete=models.PROTECT, related_name='customre_user_api_permission')
     read = models.BooleanField(default=False, null=True, blank=True)
     write = models.BooleanField(default=False, null=True, blank=True)
     edit = models.BooleanField(default=False, null=True, blank=True)

@@ -32,7 +32,7 @@ def user_api(request):
             return Response({'message':'api header is incorrect!'})
         
         data = request.data
-        if len(UserApi.objects.filter(user_email = data['email'])) >= 1:
+        if len(UserApi.objects.filter(user_email = data['email'], customre = customre)) >= 1:
             return Response({'message':'User already exist!'})
         if data['email'] and data['password']:
             user_api = UserApi(
@@ -136,8 +136,12 @@ def user_api_permission(request):
         user_id = request.data['user_id']
 
 
-        if len(UserApi.objects.filter(customre = user.user)) <=1:
-            if len(UserApiPermission.objects.filter(user_api__id = user_id, user_api_permission_name__id = permission_id)) < 1:
+        if len(UserApi.objects.filter(customre = user.user)) >=1:
+            if len(UserApiPermission.objects.filter(
+                    user_api__id = user_id, 
+                    user_api_permission_name__id = permission_id,
+                    customre = user.user
+                )) < 1:
                 
                 
                 if data['read_permission']:
@@ -167,7 +171,7 @@ def user_api_permission(request):
                     delete_permission = False
 
                 try:
-                    user_api_permission_name = UserApiPermissionName.objects.get(pk = permission_id, user = user.pk)
+                    user_api_permission_name = UserApiPermissionName.objects.get(pk = permission_id, user = user.user)
                 except:
                     return Response({'message':'Permission not exist'})
                 
@@ -182,7 +186,8 @@ def user_api_permission(request):
                     read = read_permission,
                     write = write_permission,
                     edit = edit_permission,
-                    delete = delete_permission
+                    delete = delete_permission,
+                    customre = user.user
                 )
                 user_api_permission.save()
                 user_api_permission = UserApiPermission.objects.filter(pk = user_api_permission.pk)
