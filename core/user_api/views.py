@@ -3,6 +3,10 @@ from .models import *
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from core.create_customre.models import *
+import hashlib
+import base64
+import uuid
+
 
 @api_view(['GET', 'POST'])
 def user_api(request):
@@ -13,11 +17,11 @@ def user_api(request):
             return Response({'message':'api header is missing!'})
         
         try:
-            customre = APIAccess.objects.get(production_api = api_header).user
+            customre = APIAccess.objects.get(production_api = api_header)
         except:
             return Response({'message':'api header is incorrect!'})
 
-        user_api = UserApi.objects.filter(customre = customre)
+        user_api = UserApi.objects.filter(customre = customre.user)
         user_api_serializer = UserApiSerializer(user_api, many = True)
         return Response(user_api_serializer.data)
     
@@ -27,18 +31,21 @@ def user_api(request):
             return Response({'message':'api header is missing!'})
         
         try:
-            customre = APIAccess.objects.get(production_api = api_header).user
+            customre = APIAccess.objects.get(production_api = api_header)
         except:
             return Response({'message':'api header is incorrect!'})
         
         data = request.data
-        if len(UserApi.objects.filter(user_email = data['email'], customre = customre)) >= 1:
+        if len(UserApi.objects.filter(user_email = data['email'], customre = customre.user)) >= 1:
             return Response({'message':'User already exist!'})
-        if data['email'] and data['password']:
+        password = data['password']
+        if data['email'] and password:
+            salt = base64.urlsafe_b64encode(customre.uuid.bytes)
+            password = hashlib.sha512(password.encode('utf-8') + salt).hexdigest()
             user_api = UserApi(
-                customre = customre,
+                customre = customre.user,
                 user_email = data['email'],
-                user_password = data['password'],
+                user_password = password,
                 user_first_name = data['first_name'],
                 user_last_name = data['last_name'],
             )
@@ -49,6 +56,35 @@ def user_api(request):
         else:
             return Response({'message':'Email and Password are required!'})
         
+
+@api_view(['POST'])
+def user_authenticate(request):
+    api_header = request.META.get('HTTP_API_KEY', None)
+    if not api_header:
+        return Response({'message':'api header is missing!'})
+    
+    try:
+        customre = APIAccess.objects.get(production_api = api_header)
+    except:
+        return Response({'message':'api header is incorrect!'})
+    
+    data = request.data
+    email = data['email']
+    password = data['password']
+    salt = base64.urlsafe_b64encode(customre.uuid.bytes)
+    password = hashlib.sha512(password.encode('utf-8') + salt).hexdigest()
+    try:
+        get_user = UserApi.objects.get(
+            user_email = email, 
+            user_password = password,
+            customre = customre.user
+            )
+    except:
+        return Response({'message':'Email or password is wrong!'})
+    user_serializer = UserApiSerializer(get_user)
+    return Response(user_serializer.data)
+
+
 
 @api_view(['GET'])
 def single_user_api(request, user_id):

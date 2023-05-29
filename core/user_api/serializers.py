@@ -21,5 +21,5 @@ class UserApiSerializer(serializers.ModelSerializer):
     user_api = UserAPIPermissionSerializer(many = True)
     class Meta:
         model = UserApi
-        exclude = ['customre', 'created', 'updated_at']
+        exclude = ['customre', 'created', 'updated_at', 'user_password']
 

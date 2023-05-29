@@ -14,4 +14,5 @@ urlpatterns = [
     path('delete-permission/', delete_permission_name, name='delete_permission'),
     path('delete-user-permission/', delete_user_permission, name='delete_user_permission'),
     path('edit-user-permission/<int:user_permisson_id>/', edit_user_permission, name='edit_user_permission'),
+    path('authenticate-user/', user_authenticate, name='authenticate_user')
 ]

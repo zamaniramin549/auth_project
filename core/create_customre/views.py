@@ -7,6 +7,7 @@ import uuid
 
 test_api_uuid = 'test_api_' + str(uuid.uuid4())
 production_api_uuid = 'live_api_' + str(uuid.uuid4())
+uuid_salt = uuid.uuid4()
 
 @api_view(['GET', 'POST'])
 def users_list(request):
@@ -25,13 +26,14 @@ def users_list(request):
                     username = data['email'],
                     password = data['password'],
                     first_name = data['first_name'],
-                    last_name = data['last_name']
+                    last_name = data['last_name'],
                 )
                 user.save()
                 api_access = APIAccess(
                     user = user,
                     test_api = test_api_uuid,
                     production_api = production_api_uuid,
+                    uuid = uuid_salt
                 )
                 api_access.save()
                 user = User.objects.filter(pk = user.pk)

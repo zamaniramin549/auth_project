@@ -6,7 +6,7 @@ from .models import APIAccess
 class APIAccessSerializer(serializers.ModelSerializer):
     class Meta:
         model = APIAccess
-        exclude = ['id', 'user']
+        exclude = ['id', 'user', 'uuid']
 
 
 class UserSerializer(serializers.ModelSerializer):
