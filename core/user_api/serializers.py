@@ -13,7 +13,7 @@ class UserApiPermissionNameSerializer(serializers.ModelSerializer):
 class UserAPIPermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserApiPermission
-        fields = '__all__'
+        exclude = ['customre', 'created', 'updated_at']
 
 
 

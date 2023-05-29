@@ -50,6 +50,23 @@ def user_api(request):
             return Response({'message':'Email and Password are required!'})
         
 
+@api_view(['GET'])
+def single_user_api(request, user_id):
+    api_header = request.META.get('HTTP_API_KEY', None)
+    if not api_header:
+        return Response({'message':'api header is missing!'})
+    
+    try:
+        customre = APIAccess.objects.get(production_api = api_header).user
+    except:
+        return Response({'message':'api header is incorrect!'})
+    
+    user_api = UserApi.objects.filter(customre = customre, id = user_id)
+    user_api_serializer = UserApiSerializer(user_api, many = True)
+    return Response(user_api_serializer.data)
+
+
+
 
 @api_view(['GET', 'POST'])
 def user_api_permission_name(request):
@@ -100,7 +117,8 @@ def user_api_permission_name(request):
         
 
 
-@api_view(['GET', 'POST'])
+# @api_view(['GET', 'POST'])
+@api_view(['POST'])
 def user_api_permission(request):
     # if request.method == 'GET':
 
@@ -197,6 +215,62 @@ def user_api_permission(request):
                 return Response({'message':'User already have permission, Please edit the permission'})
         else:
             return Response({'message':'Something went wrong'})
+
+        
+
+@api_view(['DELETE'])
+def delete_user_api(request):
+    if request.method == 'DELETE':
+        api_header = request.META.get('HTTP_API_KEY', None)
+        if not api_header:
+            return Response({'message':'api header is missing!'})
+        
+        try:
+            user = APIAccess.objects.get(production_api = api_header)
+        except:
+            return Response({'message':'api header is incorrect!'})
+        
+        data = request.data['user_id']
+        UserApi.objects.filter(pk = data, customre = user.user).delete()
+        return Response({'message':'User deleted'})
+    
+
+
+
+@api_view(['DELETE'])
+def delete_permission_name(request):
+    if request.method == 'DELETE':
+        api_header = request.META.get('HTTP_API_KEY', None)
+        if not api_header:
+            return Response({'message':'api header is missing!'})
+        
+        try:
+            user = APIAccess.objects.get(production_api = api_header)
+        except:
+            return Response({'message':'api header is incorrect!'})
+        
+        data = request.data['permission_id']
+
+        UserApiPermissionName.objects.filter(pk = data, user = user.user).delete()
+        return Response({'message':'Permission deleted'})
+    
+
+@api_view(['DELETE'])
+def delete_user_permission(request):
+    if request.method == 'DELETE':
+        api_header = request.META.get('HTTP_API_KEY', None)
+        if not api_header:
+            return Response({'message':'api header is missing!'})
+        
+        try:
+            user = APIAccess.objects.get(production_api = api_header)
+        except:
+            return Response({'message':'api header is incorrect!'})
+        
+        data = request.data['user_permission_id']
+
+        UserApiPermission.objects.filter(pk = data, customre = user.user).delete()
+        return Response({'message':'User permission deleted'})
 
         
 

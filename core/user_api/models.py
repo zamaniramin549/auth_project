@@ -19,7 +19,7 @@ class UserApi(models.Model):
 
 
 class UserApiPermissionName(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='user')
     permission_name = models.CharField(max_length=255)
     
 
