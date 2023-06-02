@@ -5,7 +5,11 @@ from core.user_api.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', users_list, name='user_list'),
+    # path('', users_list, name='user_list'),
+    path('', home, name='home'),
+    path('dashboard/', dashboard, name='dashboard'),
+    path('logout-user/', log_out_user, name='log_out_user'),
+    path('sign-up/', sign_up, name='sign_up'),
     path('user-api/', user_api, name='user_api'),
     path('user-api/<int:user_id>/', single_user_api, name='single_user_api'),
     path('user-api-permission-name/', user_api_permission_name, name='user_api_permission-name'),

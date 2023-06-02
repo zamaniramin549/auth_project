@@ -1,3 +1,5 @@
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
@@ -43,6 +45,65 @@ def users_list(request):
                 return Response({'message':'passwordes are not match'})
         return Response({'message':'all fields are required'})
 
+
+
+def home(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        if email and password:
+            user = authenticate(username=email, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('dashboard')
+        
+    return render(request, 'create_customre/home.html')
+
+
+def dashboard(request):
+    if request.user.is_authenticated:
+        api_access = APIAccess.objects.get(user = request.user)
+        return render(request, 'create_customre/dashboard.html',{'api_access':api_access})
+    return redirect('home')
+
+
+def sign_up(request):
+    message_success = False
+    if not request.user.is_authenticated:
+        if request.method == 'POST':
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            if email and password and first_name and last_name:
+                if len(User.objects.filter(username = email)) < 1:
+                    user = User.objects.create_user(
+                        username=email,
+                        password=password,
+                        first_name = first_name,
+                        last_name = last_name
+                    )
+                    user.save()
+                    api_access = APIAccess(
+                        user = user,
+                        test_api = test_api_uuid,
+                        production_api = production_api_uuid,
+                        uuid = uuid_salt
+                    )
+                    api_access.save()
+                    message_success = True
+        return render(request, 'create_customre/sign_up.html',{'message_success':message_success})
+    return redirect('dashboard')
+
+
+def log_out_user(request):
+    if request.user.is_authenticated:
+        logout(request)
+        return redirect('home')
+    else:
+        return redirect('home')
 
 
 
