@@ -78,7 +78,14 @@
             </div>
           </div>
     </div>
-</div>
+
+    <div class="col-md-7 mt-5">
+      <ul class="list-group">
+        {% for user_api in user_api %}
+          <li class="list-group-item">{{user_api.user_email}}</li>
+        {% endfor %}
+      </ul> 
+  </div>
 
 
 

@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
 from .serializers import UserSerializer
+from core.user_api.models import UserApi
 from .models import APIAccess
 import uuid
 
@@ -65,7 +66,8 @@ def home(request):
 def dashboard(request):
     if request.user.is_authenticated:
         api_access = APIAccess.objects.get(user = request.user)
-        return render(request, 'create_customre/dashboard.html',{'api_access':api_access})
+        user_api = UserApi.objects.filter(customre = request.user)
+        return render(request, 'create_customre/dashboard.html',{'api_access':api_access,'user_api':user_api})
     return redirect('home')
 
 
